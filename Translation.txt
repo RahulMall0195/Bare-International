@@ -1,0 +1,143 @@
+
+
+CREATE TABLE Tbl_Language_Translation (
+    TranslationID INT PRIMARY KEY IDENTITY(1,1),  
+    English NVARCHAR(255) NOT NULL,               
+    Hungarian NVARCHAR(255),                      
+    Spanish NVARCHAR(255),                        
+    Chinese NVARCHAR(255),                        
+    Portuguese NVARCHAR(255)                      
+);
+
+
+______________________________________________________________________________________
+
+
+CREATE PROCEDURE GetTranslationsByEnglish
+    @EnglishWord NVARCHAR(255),  -- Input parameter for the English word or sentence
+    @Message NVARCHAR(255) OUTPUT -- Output parameter to return the message
+AS
+BEGIN
+    -- Check if the word exists
+    IF EXISTS (SELECT 1 FROM Tbl_Language_Translation WHERE English = @EnglishWord)
+    BEGIN
+        -- If the word exists, clear the message and return the translations
+        SET @Message = NULL;  -- Clear any previous message
+        SELECT 
+            English,
+            Hungarian,
+            Spanish,
+            Chinese,
+            Portuguese
+        FROM 
+            Tbl_Language_Translation
+        WHERE 
+            English = @EnglishWord;
+    END
+    ELSE
+    BEGIN
+        -- If the word doesn't exist, set a custom message
+        SET @Message = 'The word does not exist in the translation table.';
+    END
+END
+
+
+_______________________________________________________________________________________
+
+
+
+using BusinessLayer.Entity;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+namespace BusinessLayer.DAL
+{
+    public class DAL_Tanslated_Language
+    {
+	
+     #region 
+     
+     public VM_Translation GET_TRANSLATIONS_BY_ENGLISH(obj.EnglishWord)
+     {   
+         SqlParameter[] param = {
+             new SqlParameter("@EnglishWord", obj.EnglishWord),
+             new SqlParameter("@Message", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output }  
+         };
+       
+         using (DataTable dt = new DataAccess(sqlConnection.GetConnectionString()).GetDataTable("[iTMS].[GetTranslationsByEnglish]", CommandType.StoredProcedure, param))
+         {
+             VM_Translation Tr = new VM_Translation();
+         
+             string errorMsg = param[1].Value.ToString();
+     
+             if (!string.IsNullOrEmpty(errorMsg))
+             {         
+                 Tr.ERRORMSG = errorMsg;
+             }
+             else if (dt != null && dt.Rows.Count > 0)
+             {          
+                 foreach (DataRow row in dt.Rows)
+                 {
+                     Tr.English = Convert.ToString(row["English"] == DBNull.Value ? "" : row["English"]);
+                     Tr.Hungarian = Convert.ToString(row["Hungarian"] == DBNull.Value ? "" : row["Hungarian"]);
+                     Tr.Spanish = Convert.ToString(row["Spanish"] == DBNull.Value ? "" : row["Spanish"]);
+                     Tr.Chinese = Convert.ToString(row["Chinese"] == DBNull.Value ? "" : row["Chinese"]);
+                     Tr.Portuguese = Convert.ToString(row["Portuguese"] == DBNull.Value ? "" : row["Portuguese"]);
+                     Tr.ERRORMSG = "";  
+                 }
+             }
+             else
+             {
+                 Tr.ERRORMSG = "No data found for the given word.";
+             }
+     
+             return Tr;
+         }
+     }
+     
+     #endregion
+		
+  }
+}
+
+_________________________________________________________________________________________________________		
+		
+		
+	
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Mvc;
+
+namespace BusinessLayer.Entity
+{
+    public class VM_Translation
+    {
+	 public List<VM_Translation_List> Translation_List { get; set; } 
+     public string EnglishWord{get;set;}     
+    }
+	
+	public class VM_Translation_List{
+	    public string English{get;set;}
+		public string Hungarian{get;set;}
+		public string Spanish{get;set;}
+		public string Chinese{get;set;}
+		public string Portuguese{get;set;}
+		public string ERRORMSG{get;set;}
+	}
+}
+		
+		

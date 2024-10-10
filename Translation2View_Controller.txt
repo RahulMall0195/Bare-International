@@ -1,0 +1,257 @@
+@model BusinessLayer.Entity.VM_Translation
+
+@{
+    ViewBag.Title = "Language_Translation";
+    Layout = "~/Views/Shared/_MainDashboard.cshtml";
+}
+
+<link href="~/assets/css/arc.css" rel="stylesheet" />
+<script src="~/Scripts/Custom/customValidation.js"></script>
+<script src="~/Scripts/Custom/EnterKeyUtility.js"></script>
+<link href="~/Content/ResponsiveTable.css" rel="stylesheet" />
+<script src="~/Scripts/Custom/CheckSession.js"></script>
+
+@using (Html.BeginForm("Language_Translation", "Translation", FormMethod.Post, new { @id = "frmLanguage_Translation" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    Html.RenderPartial("_Alerts");
+
+    <div class="alert alert-danger alert-dismissable" id="pageAlert" style="display:none;">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <b id="alertMessage"></b>
+    </div>
+     
+	<div class="row" style="padding-bottom:5px; ">
+            <div class="col-md-6" style="padding-bottom:5px;">
+                    @Html.TextBoxFor(x => x.EnglishWord, new { @class = "form-control", @id = "txt_English_Word", @autocomplete = "off", @maxlength = "150", @placeholder = "ENTER ENGLISH WORD OR SENTENCE" })
+       </div>  
+	   <div class="col-md-6" style="padding-top:1px; padding-bottom:1px;">        
+            <input type="submit" class="btn btn-danger btn-xs" value="View" name="View" style="width:auto;" id="btnShow" />
+            <input type="reset" class="btn btn-default btn-xs" value="Reset [Ctrl+R]" style="width:auto;" id="btnReset" />
+        </div>
+	 </div>  
+	 
+     <div class="row" style="padding-bottom:5px;">
+        <div class="col-md-12">
+            @if (Model.Translation_List != null)
+            {
+                if (Model.Translation_List.Count() > 0)
+                {
+                                  
+                    <table id="tblList" class="table table-striped table-bordered table-hover display compact responsive nowrap" style="width: 100%; white-space: nowrap; font-size: 8.0pt; border: 1px solid #35363b;">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width:6%;">Sr.No.</th>
+                                <th class="text-center" style="width:12%;">Sentence in Hungarian</th>                         
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (int i = 0; i < Model.Translation_List.Count(); i++)
+                            {
+                                <tr>
+                                    <td data-title="Sr No" class="tdCenter">
+                                        @(i + 1)                                                                                                                                                                                                                  
+                                    </td>           
+                                    <td data-title="Hungarian" class="tdCenter">                                      
+                                        @Html.DisplayFor(model => model.Translation_List[i].Hungarian)                                      
+                                    </td>                                 
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            }
+        </div>
+    </div>    
+   
+}
+
+@Styles.Render("~/Scripts/datatable_a/JQueryDatatablecss")
+@Scripts.Render("~/bundles/JQueryDatatableScripts")
+
+
+<script>
+  $(document).ready(function () {
+     
+        $('#btnReset').click(function (e) {
+            var url = '@Url.Action("Language_Translation", "Translation")';
+            window.location.href = url;
+        });
+		
+    });
+</script>
+
+
+_______________________________________________________________________________Controller
+
+
+
+using BusinessLayer;
+using BusinessLayer.DAL;
+using BusinessLayer.DAL.DAL_Tanslated_Language;
+using BusinessLayer.Entity;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Linq.Dynamic;
+using System.IO;
+using System.Configuration;
+using System.Globalization;
+using System.Net.Mail;
+using System.Threading;
+using System.Data;
+using NLog;
+
+namespace eARC.Controllers
+{
+    public class iFinAccMstController : BaseController
+    {
+	
+        public ActionResult Language_Translation()
+        {
+            ViewBag.Header = "Language Translation";
+            VM_Translation obj = new VM_Translation();          
+            return View(obj);
+        }
+		
+		
+		[HttpPost]
+        [SubmitButtonSelector(Name = "View")]
+        [ActionName("Language_Translation")]
+        public ActionResult GET_Language_Translation(VM_Asset_Depreciation_Rate_Master obj)
+        {
+            ViewBag.Header = "Language Translation";        
+            obj.Translation_List = new DAL_Tanslated_Language().GET_TRANSLATIONS_BY_ENGLISH(obj);
+            return View(obj);
+        }
+				
+    }
+}
+
+
+
+
+
+___________________________________________________________________Reach and .net_______________________________
+
+
+
+// LanguageTranslation.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const LanguageTranslation = () => {
+    const [englishWord, setEnglishWord] = useState('');
+    const [translationList, setTranslationList] = useState([]);
+    const [error, setError] = useState('');
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        try {
+            const response = await axios.post('/Translation/Language_Translation', { EnglishWord: englishWord });
+            setTranslationList(response.data.translationList || []);
+        } catch (err) {
+            setError('An error occurred while fetching translations.');
+        }
+    };
+
+    const handleReset = () => {
+        setEnglishWord('');
+        setTranslationList([]);
+        setError('');
+    };
+
+    return (
+        <div>
+            <h2>Language Translation</h2>
+            {error && <div className="alert alert-danger">{error}</div>}
+
+            <form id="frmLanguage_Translation" onSubmit={handleSubmit}>
+                <div className="row" style={{ paddingBottom: '5px' }}>
+                    <div className="col-md-6" style={{ paddingBottom: '5px' }}>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="txt_English_Word"
+                            value={englishWord}
+                            onChange={(e) => setEnglishWord(e.target.value)}
+                            placeholder="ENTER ENGLISH WORD OR SENTENCE"
+                            maxLength="150"
+                        />
+                    </div>
+                    <div className="col-md-6" style={{ paddingTop: '1px', paddingBottom: '1px' }}>
+                        <button type="submit" className="btn btn-danger btn-xs" id="btnShow">
+                            View
+                        </button>
+                        <button type="button" className="btn btn-default btn-xs" id="btnReset" onClick={handleReset}>
+                            Reset [Ctrl+R]
+                        </button>
+                    </div>
+                </div>
+
+                {translationList.length > 0 && (
+                    <div className="row" style={{ paddingBottom: '5px' }}>
+                        <div className="col-md-12">
+                            <table className="table table-striped table-bordered table-hover display compact responsive nowrap" style={{ width: '100%', whiteSpace: 'nowrap', fontSize: '8.0pt', border: '1px solid #35363b' }}>
+                                <thead>
+                                    <tr>
+                                        <th className="text-center" style={{ width: '6%' }}>Sr.No.</th>
+                                        <th className="text-center" style={{ width: '12%' }}>Sentence in Hungarian</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {translationList.map((translation, index) => (
+                                        <tr key={index}>
+                                            <td data-title="Sr No" className="tdCenter">{index + 1}</td>
+                                            <td data-title="Hungarian" className="tdCenter">{translation.Hungarian}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+            </form>
+        </div>
+    );
+};
+
+export default LanguageTranslation;
+
+
+_________________________________________________________________________________________________
+
+// TranslationController.cs
+using BusinessLayer;
+using BusinessLayer.DAL;
+using BusinessLayer.Entity;
+using Microsoft.AspNetCore.Mvc;
+
+namespace YourNamespace.Controllers
+{
+    [Route("Translation")]
+    public class TranslationController : Controller
+    {
+        [HttpGet("Language_Translation")]
+        public IActionResult Language_Translation()
+        {
+            ViewBag.Header = "Language Translation";
+            return View(); // Serve the initial page if necessary
+        }
+
+        [HttpPost("Language_Translation")]
+        public IActionResult Language_Translation([FromBody] VM_Translation model)
+        {
+            ViewBag.Header = "Language Translation";
+            model.Translation_List = new DAL_Tanslated_Language().GET_TRANSLATIONS_BY_ENGLISH(model);
+            return Json(new { translationList = model.Translation_List });
+        }
+    }
+}
