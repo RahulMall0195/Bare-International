@@ -41,6 +41,18 @@ BEGIN
     END
 END
 
+_______________________________________________________________________________________
+
+
+INSERT INTO Tbl_Language_Translation (English, Hungarian, Spanish, Chinese, Portuguese)
+VALUES 
+('Account Holder Name', 'Számlatulajdonos neve', 'Nombre del titular de la cuenta', '账号持有人姓名', 'Nome do responsável da conta'),
+('Accounting and Finance', 'Pénzügy', 'Contabilidad y Finanzas', '会计与财务', 'Contabilidade e financeiro'),
+('Active', 'Aktív', 'Activo', '已激活', 'Ativo'),
+('Add New Fee', 'Új díj létrehozása', 'Agregar nueva tarifa', '添加费用', 'Adicionar nova fee'),
+('Add new Comment', 'Új megjegyzés létrehozása', 'Agregar nuevo comentario', '添加新备注', 'Adicionar novo comentário');
+
+
 
 _______________________________________________________________________________________
 
