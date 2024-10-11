@@ -1,0 +1,29 @@
+
+-- USE SQL SERVER AND EXECUTE IT  
+
+
+CREATE TABLE Tbl_Language_Translation (
+    TranslationID INT PRIMARY KEY IDENTITY(1,1),  
+    English NVARCHAR(255) NOT NULL,               
+    Hungarian NVARCHAR(255),                      
+    Spanish NVARCHAR(255),                        
+    Chinese NVARCHAR(255),                        
+    Portuguese NVARCHAR(255)                      
+);
+
+
+
+--__________________________________________INSERT DATA IN THE TABLE_______________________________________
+
+
+
+INSERT INTO Tbl_Language_Translation (English, Hungarian, Spanish, Chinese, Portuguese)
+VALUES 
+('Account Holder Name', 'Számlatulajdonos neve', 'Nombre del titular de la cuenta', 'abc', 'Nome do responsável da conta'),
+('Accounting and Finance', 'Pénzügy', 'Contabilidad y Finanzas', 'abc', 'Contabilidade e financeiro'),
+('Active', 'Aktív', 'Activo', 'abc', 'Ativo'),
+('Add New Fee', 'Új díj létrehozása', 'Agregar nueva tarifa', 'abc', 'Adicionar nova fee'),
+('Add new Comment', 'Új megjegyzés létrehozása', 'Agregar nuevo comentario', 'abc', 'Adicionar novo comentário');
+
+
+
