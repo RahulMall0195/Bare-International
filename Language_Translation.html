@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hungarian-English Translator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>English-Hungarian Translator</h1>
+    <p>Enter an English word to get its Hungarian translation.</p>
+
+    <input type="text" id="englishWord" placeholder="Enter English word">
+    <button id="translateBtn">Translate</button>
+    
+    <div class="result" id="result"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // List of English-Hungarian translations
+        const wordPairs = {
+            "apple": "alma",
+            "book": "könyv",
+            "car": "autó",
+            "dog": "kutya",
+            "cat": "macska",
+            "house": "ház",
+            "water": "víz",
+            "food": "étel",
+            "love": "szeretet",
+            "family": "család",
+            "friend": "barát",
+            "school": "iskola",
+            "teacher": "tanár",
+            "student": "diák",
+            "city": "város",
+            "country": "ország",
+            "phone": "telefon",
+            "computer": "számítógép",
+            "music": "zene",
+            "movie": "film"
+        };
+
+        // Store words in local storage
+        if (!localStorage.getItem('wordPairs')) {
+            localStorage.setItem('wordPairs', JSON.stringify(wordPairs));
+        }
+
+        // Translate and display result
+        $('#translateBtn').click(function() {
+            const englishWord = $('#englishWord').val().trim().toLowerCase();
+            const storedWords = JSON.parse(localStorage.getItem('wordPairs'));
+            const hungarianWord = storedWords[englishWord];
+
+            if (hungarianWord) {
+                $('#result').text(`The Hungarian word for "${englishWord}" is "${hungarianWord}".`);
+            } else {
+                $('#result').text(`Sorry, translation for "${englishWord}" not found.`);
+            }
+        });
+    </script>
+
+</body>
+</html>
